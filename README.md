@@ -1,6 +1,6 @@
-# File-Manager-mini-project
+# FileVault
 
-This is a simple file manager web application built using Node.js, Express.js, and MongoDB. The application allows users to upload, manage, and download files. It includes user authentication, file upload functionality, task creation, and various file operations.
+This is a file manager web application built using Node.js, Express.js, and MongoDB. The application allows users to upload, manage, and download files. It includes user authentication, file upload functionality, task creation, and various file operations.
 
 # Features
 
