@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= filename %></title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl mb-5"><%= filename %></h1>
+        <% if (fileExtension === '.pptx') { %>
+            <p>This is a PowerPoint presentation. <a href="/download/<%= filename %>">Download the file</a> to view it.</p>
+        <% } else if (fileExtension === '.pdf') { %>
+            <p>This is a PDF file. <a href="/download/<%= filename %>">Download the file</a> to view it.</p>
+        <% } else { %>
+            <p>Unsupported file type. <a href="/download/<%= filename %>">Download the file</a> to view it.</p>
+        <% } %>
+    </div>
+</body>
+</html>

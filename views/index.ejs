@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Styles */
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            @apply px-6 py-3 rounded-full text-white font-semibold transition duration-300;
+            background-color: #1d4ed8; /* Custom Blue */
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #1e40af; /* Darker Blue */
+        }
+        .btn-primary:focus {
+           /* outline: 2px solid #1d4ed8; /* Blue outline */
+          /*  outline-offset: 2px; */
+          
+        }
+        .spinner-border {
+            border-width: 4px;
+            border-radius: 50%;
+            border-color: currentColor transparent transparent transparent;
+            border-left-color: transparent;
+            animation: spinner-border .75s linear infinite;
+        }
+        @keyframes spinner-border {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #333;
+            border-radius: 8px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .modal-content button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .modal-content button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- Header Section -->
+    <header class="flex justify-between items-center p-6 bg-gray-800 shadow-md">
+        <h1 class="text-4xl font-bold">File Manager</h1>
+        <a href="/logout" class="text-blue-400 hover:underline">Logout</a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-8">
+        <!-- Upload Form -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Upload File</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data" class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <input class="block w-full mb-4 rounded-md px-4 py-2 bg-gray-700 text-white" type="file" name="file">
+                <button class="bg-blue-600 px-4 py-1 rounded-md text-white hover:bg-blue-700" type="submit">Upload File</button>
+            </form>
+        </section>
+
+        <!-- Create Task Form -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Create Task</h2>
+            <form action="/create" method="post" class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <input class="block w-full mb-4 rounded-md px-4 py-2 bg-gray-700 text-white" type="text" placeholder="Title goes here.." name="title">
+                <textarea class="block w-full mb-4 rounded-md px-4 py-2 bg-gray-700 text-white resize-none" placeholder="Write your task details here.." name="details"></textarea>
+                <button class="bg-blue-600 px-4 py-1 rounded-md text-white hover:bg-blue-700" type="submit">Create Task</button>
+            </form>
+        </section>
+
+        <!-- File List -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">Files</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <% if(files.length > 0) { %>
+                    <% files.forEach(function(val) { %>
+                        <div class="card bg-gray-800 rounded-lg p-4">
+                            <h3 class="text-xl font-semibold mb-2 truncate"><%= val %></h3>
+                            <div class="flex flex-col gap-2">
+                                <a class="text-blue-500 hover:underline" href="/file/<%= val %>">Read more</a>
+                                <div class="flex gap-2">
+                                    <a class="text-yellow-400 hover:underline" href="/edit/<%= val %>">Edit</a>
+                                    <a class="text-red-500 hover:underline" href="/delete/<%= val %>">Delete</a>
+                                    <a class="text-green-400 hover:underline" href="/download/<%= val %>">Download</a>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="text-gray-500">No files yet...</p>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for File Details -->
+    <div id="fileModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-semibold mb-4">File Details</h2>
+            <p id="fileDetails">Loading...</p>
+            <button id="closeModal">Close</button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+        <div class="spinner-border inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+    </div>
+
+    <script>
+        // Toggle loading spinner visibility
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        // Toggle modal visibility
+        function showModal() {
+            document.getElementById('fileModal').style.display = 'flex';
+        }
+
+        function hideModal() {
+            document.getElementById('fileModal').style.display = 'none';
+        }
+
+        document.getElementById('closeModal').addEventListener('click', hideModal);
+
+        // Simulate loading state for demo purposes
+        document.addEventListener('DOMContentLoaded', () => {
+            showLoading();
+            setTimeout(hideLoading, 2000); // Hide spinner after 2 seconds
+
+            // Example of opening the modal with file details
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', () => {
+                    showModal();
+                    document.getElementById('fileDetails').innerText = 'Details of the file will be displayed here...';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
