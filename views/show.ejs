@@ -4,18 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= filename %></title>
-    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1 class="text-3xl mb-5"><%= filename %></h1>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="card bg-gray-800 p-8 rounded-lg w-full max-w-lg">
+        <h1 class="text-4xl font-bold mb-6 text-center"><%= filename %></h1>
+        
         <% if (fileExtension === '.pptx') { %>
-            <p>This is a PowerPoint presentation. <a href="/download/<%= filename %>">Download the file</a> to view it.</p>
+            <p class="text-lg mb-4">This is a PowerPoint presentation.</p>
+            <a class="bg-blue-600 px-4 py-2 rounded-md text-white hover:bg-blue-700 inline-block" href="/download/<%= filename %>">Download the file</a>
         <% } else if (fileExtension === '.pdf') { %>
-            <p>This is a PDF file. <a href="/download/<%= filename %>">Download the file</a> to view it.</p>
+            <p class="text-lg mb-4">This is a PDF file.</p>
+            <a class="bg-blue-600 px-4 py-2 rounded-md text-white hover:bg-blue-700 inline-block" href="/download/<%= filename %>">Download the file</a>
         <% } else { %>
-            <p>Unsupported file type. <a href="/download/<%= filename %>">Download the file</a> to view it.</p>
+            <p class="text-lg mb-4">Unsupported file type.</p>
+            <a class="bg-blue-600 px-4 py-2 rounded-md text-white hover:bg-blue-700 inline-block" href="/download/<%= filename %>">Download the file</a>
         <% } %>
     </div>
+
 </body>
 </html>
